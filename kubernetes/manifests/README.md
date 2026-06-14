@@ -1,6 +1,6 @@
 # Manifests
 
-Raw Kubernetes YAML for kubectl / k9s. Uses the **kubernetes executor** — CI jobs run as pods in the cluster.
+Raw Kubernetes YAML for kubectl. Uses the **kubernetes executor** — CI jobs run as pods in the cluster.
 
 ## Configure
 
