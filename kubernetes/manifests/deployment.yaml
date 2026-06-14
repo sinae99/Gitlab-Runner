@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitlab-runner
+  namespace: gitlab-runner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitlab-runner
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: gitlab-runner
+    spec:
+      serviceAccountName: gitlab-runner
+      terminationGracePeriodSeconds: 3600
+      containers:
+        - name: gitlab-runner
+          image: gitlab/gitlab-runner:alpine-v18.4.0
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              CONFIG="${CONFIG_DIR}/config.toml"
+              if [ ! -f "$CONFIG" ] || grep -q '^\s*token\s*=\s*""' "$CONFIG"; then
+                REGISTER_ARGS=(
+                  register --non-interactive --config "$CONFIG"
+                  --url "$GITLAB_URL" --registration-token "$REGISTRATION_TOKEN"
+                  --name "$RUNNER_NAME" --executor kubernetes
+                  --kubernetes-namespace gitlab-runner
+                  --kubernetes-service-account "$JOB_SERVICE_ACCOUNT"
+                  --kubernetes-image "$JOB_IMAGE"
+                  --tag-list "$RUNNER_TAGS"
+                )
+                if [ "${JOB_PRIVILEGED:-false}" = "true" ]; then
+                  REGISTER_ARGS+=(--kubernetes-privileged)
+                fi
+                gitlab-runner "${REGISTER_ARGS[@]}"
+              fi
+              exec gitlab-runner run --user=gitlab-runner --working-directory=/home/gitlab-runner
+          envFrom:
+            - secretRef:
+                name: gitlab-runner-secret
+          env:
+            - name: CONFIG_DIR
+              value: /etc/gitlab-runner
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/gitlab-runner
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: gitlab-runner-config

@@ -1,0 +1,8 @@
+---
+- name: Deploy GitLab Runner
+  hosts: runner_server
+  vars_files:
+    - ../../docker/vars.yml
+
+  roles:
+    - gitlab_runner

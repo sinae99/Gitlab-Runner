@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: gitlab-runner
+
+resources:
+  - namespace.yaml
+  - rbac
+  - pvc.yaml
+  - deployment.yaml
+
+secretGenerator:
+  - name: gitlab-runner-secret
+    envs:
+      - vars.env
+    options:
+      disableNameSuffixHash: true

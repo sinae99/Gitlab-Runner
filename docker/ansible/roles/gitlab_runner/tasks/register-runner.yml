@@ -1,0 +1,28 @@
+---
+- name: Register GitLab Runner
+  command: >
+    docker run --rm -i
+    -v {{ runner_config_dir }}:/etc/gitlab-runner
+    gitlab/gitlab-runner:{{ gitlab_runner_version }}
+    register
+    --non-interactive
+    --url "{{ gitlab_url }}"
+    --registration-token "{{ gitlab_registration_token }}"
+    --name "{{ gitlab_runner_name }}"
+    --executor "{{ executor }}"
+    --tag-list "{{ gitlab_runner_tags | join(',') }}"
+    --docker-image "{{ docker_image }}"
+    {% for helper in docker_helper_images %}
+    --docker-helper-image "{{ helper }}"
+    {% endfor %}
+    {% if docker_privileged %}
+    --docker-privileged
+    {% endif %}
+    --docker-volumes "/cache"
+    --docker-volumes "/var/run/docker.sock:/var/run/docker.sock"
+    --docker-volumes "/builds:/builds"
+    --docker-disable-cache
+  args:
+    stdin: ""
+  register: runner_registration_result
+  changed_when: "'Runner registered successfully' in runner_registration_result.stderr"

@@ -1,0 +1,33 @@
+############################################################
+# GitLab
+############################################################
+gitlab_url: "https://gitlab.example.com"
+gitlab_registration_token: "glrt-xxxxxxxxxxxxxxxxxxxx"
+
+############################################################
+# Runner
+############################################################
+gitlab_runner_name: "docker-gitlab-runner"
+gitlab_runner_tags:
+  - docker
+  - dind
+
+############################################################
+# Docker executor
+############################################################
+executor: "docker"
+docker_image: "docker:latest"
+docker_privileged: true
+gitlab_runner_version: "latest"
+
+docker_helper_images:
+  - "registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v18.4.0"
+  - "harbor.arcaptcha.ir/utils/gitlab-runner-helper:x86_64-v18.4.0"
+
+############################################################
+# Paths on target host (built from ansible_user)
+############################################################
+runner_root_dir: "/home/{{ ansible_user }}/gitlab-runner"
+runner_config_dir: "/home/{{ ansible_user }}/gitlab-runner/config"
+runner_cache_dir: "/home/{{ ansible_user }}/gitlab-runner/cache"
+docker_compose_file: "/home/{{ ansible_user }}/gitlab-runner/docker-compose.yml"

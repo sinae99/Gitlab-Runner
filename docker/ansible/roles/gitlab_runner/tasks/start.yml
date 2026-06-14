@@ -1,0 +1,12 @@
+---
+- name: Deploy docker-compose.yml
+  template:
+    src: "../../../../docker/docker-compose.yml.j2"
+    dest: "{{ docker_compose_file }}"
+    mode: "0644"
+  notify: restart gitlab runner
+
+- name: Start GitLab Runner container
+  command: docker compose up -d
+  args:
+    chdir: "{{ runner_root_dir }}"

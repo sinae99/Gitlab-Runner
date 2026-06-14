@@ -1,0 +1,77 @@
+# Copy to values.yaml and fill in secrets before deploy:
+#   cp values.example.yaml values.yaml
+#
+# Or pass the token at install time:
+#   helm upgrade --install gitlab-runner gitlab/gitlab-runner \
+#     -n gitlab-runner -f values.yaml --set runnerToken="$RUNNER_TOKEN"
+
+gitlabUrl: https://gitlab.example.com/
+
+runnerToken: ""  # GitLab → Settings → CI/CD → Runners → New runner token
+
+image:
+  registry: docker.io
+  image: gitlab/gitlab-runner
+  tag: alpine-v18.4.0
+
+podSecurityContext:
+  runAsUser: 100
+  fsGroup: 65533
+
+replicas: 1
+concurrent: 4
+checkInterval: 3
+
+rbac:
+  create: true
+  rules:
+    - resources: ["pods"]
+      verbs: ["create", "delete", "get", "list", "watch"]
+    - resources: ["pods/exec", "pods/attach"]
+      verbs: ["create", "delete", "get", "patch"]
+    - resources: ["pods/log"]
+      verbs: ["get", "list"]
+    - resources: ["secrets"]
+      verbs: ["create", "delete", "get", "update"]
+    - resources: ["serviceaccounts"]
+      verbs: ["get"]
+    - resources: ["services"]
+      verbs: ["create", "get"]
+
+serviceAccount:
+  create: true
+  name: gitlab-runner
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+runners:
+  config: |
+    [[runners]]
+      name = "shared-k8s-runner"
+      executor = "kubernetes"
+      tag_list = ["k3s", "kaniko", "docker"]
+
+      [runners.kubernetes]
+        namespace = "gitlab-runner"
+        image = "alpine:3.20"
+        service_account = "gitlab-runner-jobs"
+        privileged = false
+        poll_timeout = 180
+        pull_policy = "if-not-present"
+
+        cpu_request = "250m"
+        memory_request = "512Mi"
+        cpu_limit = "4"
+        memory_limit = "8Gi"
+
+        helper_image = "registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v18.4.0"
+
+      [runners.kubernetes.pod_labels]
+        workload = "ci"
+        managed_by = "gitlab-runner"

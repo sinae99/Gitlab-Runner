@@ -1,0 +1,5 @@
+---
+- name: restart gitlab runner
+  command: docker compose up -d
+  args:
+    chdir: "{{ runner_root_dir }}"

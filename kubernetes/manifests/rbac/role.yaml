@@ -1,0 +1,42 @@
+# Minimal Role for the runner manager pod only (GitLab Runner v18, basic kubernetes executor).
+# See README.md for what each rule does and how to add optional permissions.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: gitlab-runner
+  namespace: gitlab-runner
+rules:
+  # Create/watch/delete CI job pods
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["create", "delete", "get", "list", "watch"]
+
+  # Run build scripts inside job pods
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create", "delete", "get", "patch"]
+
+  # Attach to job pods (log streaming, terminal)
+  - apiGroups: [""]
+    resources: ["pods/attach"]
+    verbs: ["create", "delete", "get", "patch"]
+
+  # Read job pod logs
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get", "list"]
+
+  # Create per-job secrets for CI variables (masked/protected vars)
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create", "delete", "get", "update"]
+
+  # Verify the service account assigned to job pods exists
+  - apiGroups: [""]
+    resources: ["serviceaccounts"]
+    verbs: ["get"]
+
+  # Expose job services (e.g. CI_DEBUG_SERVICES)
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["create", "get"]

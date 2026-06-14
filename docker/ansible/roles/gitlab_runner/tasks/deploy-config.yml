@@ -1,0 +1,18 @@
+---
+- name: Ensure runner root directory exists
+  file:
+    path: "{{ runner_root_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Ensure runner config directory exists
+  file:
+    path: "{{ runner_config_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Ensure cache directory exists
+  file:
+    path: "{{ runner_cache_dir }}"
+    state: directory
+    mode: "0755"

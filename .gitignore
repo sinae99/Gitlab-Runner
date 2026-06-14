@@ -1,0 +1,7 @@
+# SSH inventory (never commit real host details)
+ansible/inventory/hosts.ini
+/test
+
+# Local secrets — use *.example files as templates
+kubernetes/helm/values.yaml
+kubernetes/manifests/vars.env

@@ -1,0 +1,11 @@
+---
+- name: Check if GitLab Runner container exists
+  command: docker ps --filter "name=gitlab-runner" --format "{{'{{'}}.Names{{'}}'}}"
+  register: runner_status
+  changed_when: false
+  when: not ansible_check_mode
+
+- name: Fail if runner container is not running
+  fail:
+    msg: "GitLab Runner container is NOT running!"
+  when: not ansible_check_mode and runner_status.stdout == ""

@@ -1,0 +1,17 @@
+stages:
+  - build
+
+kaniko-build-test:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:v1.23.2-debug
+    entrypoint: [""]
+  tags:
+    - k3s
+    - kaniko
+  script:
+    - echo "Starting Kaniko build..."
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --no-push
