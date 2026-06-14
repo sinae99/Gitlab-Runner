@@ -100,39 +100,3 @@ GitLab job → runner creates a pod in gitlab-runner namespace
 ```
 
 Test pipeline: [`../../examples/kaniko-test/`](../../examples/kaniko-test/).
-
-## Troubleshooting
-
-**`mkdir: cannot create directory '/home/gitlab-runner': Permission denied`**
-
-The plain `v18.4.0` tag is Ubuntu-based (UID 999). The chart defaults to Alpine (UID 100). Use an alpine tag:
-
-```yaml
-image:
-  tag: alpine-v18.4.0
-
-podSecurityContext:
-  runAsUser: 100
-  fsGroup: 65533
-```
-
-Or keep `v18.4.0` and switch to Ubuntu UIDs: `runAsUser: 999`, `fsGroup: 999`.
-
-**`exec: "sh": executable file not found in $PATH`**
-
-You are using the non-debug Kaniko image. Switch to `gcr.io/kaniko-project/executor:v1.23.2-debug` and keep `entrypoint: [""]`.
-
-## Production checklist
-
-- [ ] `runnerToken` set in local `values.yaml` or passed via `--set`
-- [ ] `gitlab-runner-jobs` service account applied
-- [ ] Runner online in GitLab with expected tags
-- [ ] Kaniko test pipeline passes ([`examples/kaniko-test/`](../../examples/kaniko-test/))
-- [ ] CI jobs use `tags: [k3s, kaniko]` (or your chosen tags)
-- [ ] Job pods run non-privileged — do **not** enable DinD unless you accept the security trade-off
-
-After changing `values.yaml`, redeploy:
-
-```bash
-helm upgrade gitlab-runner gitlab/gitlab-runner -n gitlab-runner -f values.yaml
-```
