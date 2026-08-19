@@ -26,7 +26,7 @@ Edit `values.yaml`:
 Create the job service account first (Helm chart does not create it):
 
 ```bash
-kubectl create namespace gitlab-runner --dry-run=client -o yaml | kubectl apply -f -
+kubectl create namespace gitlab-runner -o yaml | kubectl apply -f -
 kubectl apply -f ../manifests/rbac/serviceaccount-jobs.yaml
 ```
 
