@@ -21,8 +21,7 @@ docker_privileged: true
 gitlab_runner_version: "latest"
 
 docker_helper_images:
-  - "registry.gitlab.com/gitlab-org/gitlab-runner/gitlab-runner-helper:x86_64-v18.4.0"
-  - "harbor.arcaptcha.ir/utils/gitlab-runner-helper:x86_64-v18.4.0"
+  - "gitlab-runner-helper:x86_64-v18.4.0"
 
 ############################################################
 # Paths on target host (built from ansible_user)
