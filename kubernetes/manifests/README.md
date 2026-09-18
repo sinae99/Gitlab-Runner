@@ -20,7 +20,6 @@ Edit **`vars.env`**:
 | `JOB_PRIVILEGED` | `false` for Kaniko builds (no DinD) |
 | `JOB_SERVICE_ACCOUNT` | SA for job pods — use `gitlab-runner-jobs` (no API access) |
 
-`vars.env` is gitignored — never commit runner tokens.
 
 Runner container image is pinned in `deployment.yaml` (`gitlab/gitlab-runner:alpine-v18.4.0`).
 
